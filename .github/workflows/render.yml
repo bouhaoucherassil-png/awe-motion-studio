@@ -1,0 +1,85 @@
+name: Render Vawe video
+
+on:
+  workflow_dispatch:
+    inputs:
+      film:
+        description: "Film folder under films/"
+        required: true
+        default: "test"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vawe-render-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    name: Render draft MP4
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VAWE_WORKERS: "2"
+    steps:
+      - name: Check out this private project
+        uses: actions/checkout@v4
+
+      - name: Validate film name
+        shell: bash
+        env:
+          FILM: ${{ inputs.film }}
+        run: |
+          if [[ ! "$FILM" =~ ^[a-z0-9-]+$ ]]; then
+            echo "Film name must contain only lowercase letters, numbers and hyphens."
+            exit 1
+          fi
+          if [[ ! -f "films/$FILM/page.html" ]]; then
+            echo "Missing films/$FILM/page.html"
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install FFmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-liberation
+
+      - name: Download Vawe source
+        run: git clone --depth 1 https://github.com/vawe-hq/vawe.git .vawe
+
+      - name: Install Vawe dependencies and Chrome
+        working-directory: .vawe
+        run: |
+          npm install --no-audit --no-fund
+          npx puppeteer browsers install chrome
+
+      - name: Copy film into Vawe workspace
+        shell: bash
+        env:
+          FILM: ${{ inputs.film }}
+        run: |
+          mkdir -p ".vawe/films/$FILM"
+          cp -R "films/$FILM/." ".vawe/films/$FILM/"
+
+      - name: Render vertical draft (9:16)
+        working-directory: .vawe
+        env:
+          FILM: ${{ inputs.film }}
+        run: |
+          mkdir -p out
+          bin/vawe dev "films/$FILM/page.html" --whole --aspect 9:16 --no-judge --out "out/$FILM-draft.mp4"
+
+      - name: Upload draft MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: vawe-draft-${{ inputs.film }}
+          path: .vawe/out/${{ inputs.film }}-draft.mp4
+          if-no-files-found: error
+          retention-days: 1
