@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="fr" data-aspect="9:16">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="duration" content="60">
+  <meta name="aspect" content="9:16">
   <meta name="message" content="Le mouvement donne vie aux idées">
   <title>Vawe — Test vertical 60 secondes</title>
   <style>
@@ -14,7 +15,6 @@
       --muted: #9aa6b8;
       --accent: #79f2c0;
       --accent2: #7c9cff;
-      --vh: 100vh;
     }
     * { box-sizing: border-box; }
     html, body {
@@ -50,7 +50,7 @@
       position: absolute; inset: 0; display: flex; flex-direction: column;
       justify-content: center; padding: 0 9%;
       opacity: 0; transform: translateY(2.5%);
-      animation: scene-in 60s linear both;
+      animation: scene-in 10s linear both;
     }
     .s1 { animation-delay: 0s; }
     .s2 { animation-delay: 10s; }
@@ -59,9 +59,9 @@
     .s5 { animation-delay: 40s; }
     .s6 { animation-delay: 50s; }
     @keyframes scene-in {
-      0%, 1% { opacity: 0; transform: translateY(3%); }
-      3%, 14% { opacity: 1; transform: translateY(0); }
-      17%, 100% { opacity: 0; transform: translateY(-2%); }
+      0%, 8% { opacity: 0; transform: translateY(3%); }
+      20%, 78% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-2%); }
     }
     .eyebrow {
       color: var(--accent); font-weight: 700; font-size: clamp(11px, 2.8vw, 21px);
