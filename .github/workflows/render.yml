@@ -76,7 +76,7 @@ jobs:
           FILM: ${{ inputs.film }}
         run: |
           mkdir -p out
-          bin/vawe dev "films/$FILM/page.html" --aspect 9:16 --no-judge --out "out/$FILM-draft.mp4"
+          bin/vawe dev "films/$FILM/page.html" --aspect 9:16 --no-judge --whole --out "out/$FILM-draft.mp4"
 
       - name: Upload draft MP4
         uses: actions/upload-artifact@v4
